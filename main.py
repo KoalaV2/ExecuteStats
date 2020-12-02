@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 
 from influxdb import InfluxDBClient
+import time
+import subprocess
+import sys
 hostip = "docker.therepairbear.koala"
 hostport = "8086"
 
@@ -10,24 +13,37 @@ def createDatabase():
     client.create_database('ExecStats')
 
 #createDatabase()
+#client.drop_database('ExecStats')
 client.get_list_database()
 client.switch_database('ExecStats')
 print(client.get_list_database())
+
+currtime = float(time.time())
+print(currtime)
+print("Starting program now")
+
+process = subprocess.run(["python3","part2.py"])
+subprocess.CompletedProcess.check_returncode(process)
+
+print("Program has finished")
+currendtime = float(time.time())
+
 json_body = [
     {
         "measurement":"ExcecuteStatus",
         "tags": {
-            "username": "koala",
-            "programName": "hello.py"
+            "username": "bob",
+            "programName": "program3.py"
             },
         "fields": {
-            "exectime": "1m 52s"
-        }
+            "startTime": currtime,
+            "endtime": currendtime 
+            }
     } 
 ]
 
 print("Writing to DB")
-print(client.write_points(json_body,database='ExecStats',protocol=u'json'))
+client.write_points(json_body,database='ExecStats',protocol=u'json')
 print("Querying data from DB")
-client.drop_database('database')
-print(client.query("SELECT exectime FROM ExecStats.autogen.ExcecuteStatus WHERE \"username\"='koala' FILL(null)"))
+#client.drop_database('database')
+#print(client.query("SELECT exectime FROM ExecStats.autogen.ExcecuteStatus WHERE \"username\"='koala' AND programName='hello.py' FILL(null)"))
