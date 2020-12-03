@@ -46,38 +46,37 @@ def upload_file():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return(f"Saved as {filename} \n")
-#            return redirect(url_for('upload_file', filename=filename))
+            writetodatabase(filename)
+            return("")
+def writetodatabase(filename):
+    currtime = float(time.time())
+    print(currtime)
+
+    print("Starting program now")
+
+    process = subprocess.run(["python3",filename])
+    subprocess.CompletedProcess.check_returncode(process)
+
+    print("Program has finished")
+    currendtime = float(time.time())
+
+    json_body = [
+        {
+            "measurement":"ExcecuteStatus",
+            "tags": {
+                "username": "koala",
+                "programName": filename                },
+            "fields": {
+                "startTime": currtime,
+                "endtime": currendtime 
+                }
+        } 
+    ]
+
+    print("Writing to DB")
+    client.write_points(json_body,database='ExecStats',protocol=u'json')
 
 app.run()
 
 
-
-currtime = float(time.time())
-print(currtime)
-
-print("Starting program now")
-
-process = subprocess.run(["python3","lol.py"])
-subprocess.CompletedProcess.check_returncode(process)
-
-print("Program has finished")
-currendtime = float(time.time())
-
-json_body = [
-    {
-        "measurement":"ExcecuteStatus",
-        "tags": {
-            "username": "koala",
-            "programName": "lol.py"
-            },
-        "fields": {
-            "startTime": currtime,
-            "endtime": currendtime 
-            }
-    } 
-]
-
-print("Writing to DB")
-client.write_points(json_body,database='ExecStats',protocol=u'json')
 
