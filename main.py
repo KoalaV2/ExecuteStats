@@ -4,6 +4,9 @@ from influxdb import InfluxDBClient
 import time
 import subprocess
 import sys
+import os
+from werkzeug.utils import secure_filename
+from flask import Flask, flash, request, redirect, url_for
 hostip = "docker.therepairbear.koala"
 hostport = "8086"
 
@@ -12,18 +15,50 @@ def createDatabase():
     print("Creating database")
     client.create_database('ExecStats')
 
+
 #createDatabase()
 #client.drop_database('ExecStats')
+
 client.get_list_database()
 client.switch_database('ExecStats')
 print(client.get_list_database())
-nameofuser = input("What is your username? \n : ")
-nameofprogram = input("What is the name of the python file that you want to launch? \n : ")
+app = Flask(__name__)
+UPLOAD_FOLDER= '/home/koala/programming/'
+ALLOWED_EXTENSIONS = {'py','lua'}
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+@app.route('/', methods=["GET","POST"])
+
+def upload_file():
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            flash('No file part')
+        file = request.files['file']
+
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            return(f"Saved as {filename} \n")
+#            return redirect(url_for('upload_file', filename=filename))
+
+app.run()
+
+
+
 currtime = float(time.time())
 print(currtime)
+
 print("Starting program now")
 
-process = subprocess.run(["python3",nameofprogram])
+process = subprocess.run(["python3","lol.py"])
 subprocess.CompletedProcess.check_returncode(process)
 
 print("Program has finished")
@@ -33,8 +68,8 @@ json_body = [
     {
         "measurement":"ExcecuteStatus",
         "tags": {
-            "username": nameofuser,
-            "programName": nameofprogram 
+            "username": "koala",
+            "programName": "lol.py"
             },
         "fields": {
             "startTime": currtime,
