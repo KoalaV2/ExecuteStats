@@ -38,17 +38,21 @@ def upload_file():
         if 'file' not in request.files:
             flash('No file part')
         file = request.files['file']
-
+#        if 'user' not in request.:
+#            print("no user")
         if file.filename == '':
             flash('No selected file')
             return redirect(request.url)
-
-        if file and allowed_file(file.filename):
+        if request.authorization == None:
+            return("\n No user selected, select a username using -u \n ")
+        if file and allowed_file(file.filename) and request.authorization != None:
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            writetodatabase(filename)
+            print(request.authorization)
+            username = request.authorization["username"]
+            writetodatabase(filename,username)
             return("")
-def writetodatabase(filename):
+def writetodatabase(filename,username):
     currtime = float(time.time())
     print(currtime)
 
@@ -64,8 +68,9 @@ def writetodatabase(filename):
         {
             "measurement":"ExcecuteStatus",
             "tags": {
-                "username": "koala",
-                "programName": filename                },
+                "username": username,
+                "programName": filename
+                },
             "fields": {
                 "startTime": currtime,
                 "endtime": currendtime 
