@@ -17,12 +17,12 @@ def createDatabase():
 client.get_list_database()
 client.switch_database('ExecStats')
 print(client.get_list_database())
-
+nameofprogram = input("What is the name of the python file that you want to launch? \n : ")
 currtime = float(time.time())
 print(currtime)
 print("Starting program now")
 
-process = subprocess.run(["python3","part2.py"])
+process = subprocess.run(["python3",nameofprogram])
 subprocess.CompletedProcess.check_returncode(process)
 
 print("Program has finished")
@@ -33,7 +33,7 @@ json_body = [
         "measurement":"ExcecuteStatus",
         "tags": {
             "username": "bob",
-            "programName": "program3.py"
+            "programName": nameofprogram 
             },
         "fields": {
             "startTime": currtime,
