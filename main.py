@@ -17,6 +17,7 @@ def createDatabase():
 client.get_list_database()
 client.switch_database('ExecStats')
 print(client.get_list_database())
+nameofuser = input("What is your username? \n : ")
 nameofprogram = input("What is the name of the python file that you want to launch? \n : ")
 currtime = float(time.time())
 print(currtime)
@@ -32,7 +33,7 @@ json_body = [
     {
         "measurement":"ExcecuteStatus",
         "tags": {
-            "username": "bob",
+            "username": nameofuser,
             "programName": nameofprogram 
             },
         "fields": {
