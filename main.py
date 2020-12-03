@@ -18,13 +18,14 @@ def createDatabase():
 
 #createDatabase()
 #client.drop_database('ExecStats')
+#print(client.get_list_database())
+
 
 client.get_list_database()
 client.switch_database('ExecStats')
-print(client.get_list_database())
 app = Flask(__name__)
-UPLOAD_FOLDER= '/home/koala/programming/'
-ALLOWED_EXTENSIONS = {'py','lua'}
+UPLOAD_FOLDER= '/home/koala/programming/ExecuteStats'
+ALLOWED_EXTENSIONS = {'txt','py','lua'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 def allowed_file(filename):
     return '.' in filename and \
