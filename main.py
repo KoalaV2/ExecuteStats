@@ -44,6 +44,4 @@ json_body = [
 
 print("Writing to DB")
 client.write_points(json_body,database='ExecStats',protocol=u'json')
-print("Querying data from DB")
-#client.drop_database('database')
-#print(client.query("SELECT exectime FROM ExecStats.autogen.ExcecuteStatus WHERE \"username\"='koala' AND programName='hello.py' FILL(null)"))
+
