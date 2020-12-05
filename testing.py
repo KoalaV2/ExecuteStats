@@ -62,6 +62,7 @@ def login():
     else:
         print("Something went wrong")
     conn.close()
+    return("")
  
 @app.route('/protected')
 @jwt_required()
