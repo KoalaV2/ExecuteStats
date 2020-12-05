@@ -41,14 +41,28 @@ def signup():
     c = conn.cursor()
     RequestUsername = request.authorization["username"].encode("utf-8")
     RequestPassword = request.authorization["password"].encode("utf-8")
-    c.execute('''CREATE TABLE IF NOT EXISTS users (username)''')
-    c.execute("INSERT INTO users VALUES (?);",(RequestUsername,))
+    dbpasswd = bcrypt.hashpw(RequestPassword, bcrypt.gensalt())
+    c.execute('''CREATE TABLE IF NOT EXISTS users (username,password)''')
+    c.execute("INSERT INTO users VALUES (?,?);",(RequestUsername,dbpasswd))
     conn.commit()
     conn.close()
-    print(RequestUsername)
-    print(RequestPassword)
-    return("")
+@app.route('/login')
+def login():
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+    cursor = c.execute("SELECT username,password FROM users")
+    RequestUsername = request.authorization["username"].encode("utf-8")
+    RequestPassword = request.authorization["password"].encode("utf-8")
+    for row in cursor:
+        hashedpasswd = row[1]
+    bcryptpasswd = bcrypt.hashpw(RequestPassword, bcrypt.gensalt())
 
+    if bcrypt.checkpw(bcryptpasswd,hashedpasswd):
+        print("It's alive!")
+    else:
+        print("Something went wrong")
+    conn.close()
+ 
 @app.route('/protected')
 @jwt_required()
 def protected():
