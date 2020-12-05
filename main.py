@@ -7,6 +7,7 @@ import sys
 import os
 from werkzeug.utils import secure_filename
 from flask import Flask, flash, request, redirect, url_for
+from flask_jwt import JWT
 hostip = "docker.therepairbear.koala"
 hostport = "8086"
 
@@ -15,14 +16,13 @@ def createDatabase():
     print("Creating database")
     client.create_database('ExecStats')
 
-#createDatabase()
-#client.drop_database('ExecStats')
-#print(client.get_list_database())
-
-
 client.get_list_database()
 client.switch_database('ExecStats')
+
+
 app = Flask(__name__)
+app.secret_key = "bob"
+jwt = JWT(app)
 UPLOAD_FOLDER= '/home/koala/programming/ExecuteStats'
 ALLOWED_EXTENSIONS = {'txt','py','lua'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
