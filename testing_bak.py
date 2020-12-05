@@ -1,10 +1,7 @@
-from flask import Flask, flash, request, redirect, url_for
+from flask import Flask
 from flask_jwt import JWT, jwt_required, current_identity
 from werkzeug.security import safe_str_cmp
-import sqlite3
-import bcrypt
-conn = sqlite3.connect('database.db')
-c = conn.cursor()
+
 class User(object):
     def __init__(self, id, username, password):
         self.id = id
@@ -15,7 +12,7 @@ class User(object):
         return "User(id='%s')" % self.id
 
 users = [
-        User(1, 'user1', 'password')
+    User(1, 'user1', 'abcxyz')
 ]
 
 username_table = {u.username: u for u in users}
@@ -35,19 +32,6 @@ app.debug = True
 app.config['SECRET_KEY'] = '&RUS7vHsmj8Sa!8EWF'
 
 jwt = JWT(app, authenticate, identity)
-@app.route('/signup')
-def signup():
-    conn = sqlite3.connect('database.db')
-    c = conn.cursor()
-    RequestUsername = request.authorization["username"].encode("utf-8")
-    RequestPassword = request.authorization["password"].encode("utf-8")
-    c.execute('''CREATE TABLE IF NOT EXISTS users (username)''')
-    c.execute("INSERT INTO users VALUES (?);",(RequestUsername,))
-    conn.commit()
-    conn.close()
-    print(RequestUsername)
-    print(RequestPassword)
-    return("")
 
 @app.route('/protected')
 @jwt_required()
