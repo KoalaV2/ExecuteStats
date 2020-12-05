@@ -15,7 +15,6 @@ def createDatabase():
     print("Creating database")
     client.create_database('ExecStats')
 
-
 #createDatabase()
 #client.drop_database('ExecStats')
 #print(client.get_list_database())
