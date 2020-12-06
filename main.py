@@ -6,11 +6,16 @@ import subprocess
 import sys
 import os
 from werkzeug.utils import secure_filename
-from flask import Flask, flash, request, redirect, url_for
-from flask_jwt import JWT
+from flask import Flask, flash, request, redirect, url_for, jsonify
+import json
+import bcrypt
+import sqlite3
 hostip = "docker.therepairbear.koala"
 hostport = "8086"
-
+#sqlite3.createDatabase('database.db')
+conn = sqlite3.connect('database.db')
+c = conn.cursor()
+c.execute('''CREATE TABLE IF NOT EXISTS users (username,password)''')
 client = InfluxDBClient(host=hostip,port=hostport)
 def createDatabase():
     print("Creating database")
@@ -21,9 +26,10 @@ client.switch_database('ExecStats')
 
 
 app = Flask(__name__)
-app.secret_key = "bob"
-jwt = JWT(app)
-UPLOAD_FOLDER= '/home/koala/programming/ExecuteStats'
+app.config['SECRET_KEY'] = '&RUS7vHsmj8Sa!8EWF'
+app.debug = True
+
+UPLOAD_FOLDER= '/home/koala/programming/python/ExecuteStats'
 ALLOWED_EXTENSIONS = {'txt','py','lua'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 def allowed_file(filename):
@@ -32,26 +38,38 @@ def allowed_file(filename):
 
 
 @app.route('/', methods=["GET","POST"])
-
 def upload_file():
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+    cursor = c.execute("SELECT username,password FROM users")
+    RequestUsername = request.authorization["username"].encode("utf-8")
+    RequestPassword = request.authorization["password"].encode("utf-8")
+    for row in cursor:
+        hashedpasswd = row[1] 
     if request.method == 'POST':
         if 'file' not in request.files:
             flash('No file part')
+            return("")
         file = request.files['file']
-#        if 'user' not in request.:
-#            print("no user")
+        if not request.authorization["username"]:
+            print("no user")
+            return("No user")
         if file.filename == '':
             flash('No selected file')
             return redirect(request.url)
         if request.authorization == None:
             return("\n No user selected, select a username using -u \n ")
-        if file and allowed_file(file.filename) and request.authorization != None:
+        if file and allowed_file(file.filename) and bcrypt.checkpw(RequestPassword, hashedpasswd):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            print(request.authorization)
-            username = request.authorization["username"]
+            print(request.authorization["username"].encode("utf-8"))
+            username = request.authorization["username"].encode("utf-8")
             writetodatabase(filename,username)
-            return("")
+        if not bcrypt.checkpw(RequestPassword, hashedpasswd):
+            print("Wrong password")
+            return("Wrong password")
+        return("")
+    return("No post request recived")
 def writetodatabase(filename,username):
     currtime = float(time.time())
     print(currtime)
