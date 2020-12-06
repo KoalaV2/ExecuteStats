@@ -15,7 +15,6 @@ hostport = "8086"
 #sqlite3.createDatabase('database.db')
 conn = sqlite3.connect('database.db')
 c = conn.cursor()
-c.execute('''CREATE TABLE IF NOT EXISTS users (username,password)''')
 client = InfluxDBClient(host=hostip,port=hostport)
 def createDatabase():
     print("Creating database")
@@ -62,15 +61,13 @@ def upload_file():
         if file and allowed_file(file.filename) and bcrypt.checkpw(RequestPassword, hashedpasswd):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            print(request.authorization["username"].encode("utf-8"))
-            username = request.authorization["username"].encode("utf-8")
-            writetodatabase(filename,username)
+            writetodatabase(filename,RequestUsername)
         if not bcrypt.checkpw(RequestPassword, hashedpasswd):
             print("Wrong password")
             return("Wrong password")
         return("")
     return("No post request recived")
-def writetodatabase(filename,username):
+def writetodatabase(filename,RequestUsername):
     currtime = float(time.time())
     print(currtime)
 
@@ -86,7 +83,7 @@ def writetodatabase(filename,username):
         {
             "measurement":"ExcecuteStatus",
             "tags": {
-                "username": username,
+                "username": RequestUsername, 
                 "programName": filename
                 },
             "fields": {
