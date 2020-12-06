@@ -10,6 +10,7 @@ from flask import Flask, flash, request, redirect, url_for, jsonify
 import json
 import bcrypt
 import sqlite3
+flask_secretkey = os.getenv("flask_secretkey", "default value")
 hostip = "docker.therepairbear.koala"
 hostport = "8086"
 #sqlite3.createDatabase('database.db')
@@ -25,7 +26,7 @@ client.switch_database('ExecStats')
 
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = '&RUS7vHsmj8Sa!8EWF'
+app.config['SECRET_KEY'] = flask_secretkey 
 app.debug = True
 
 UPLOAD_FOLDER= '/home/koala/programming/python/ExecuteStats'
