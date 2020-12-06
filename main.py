@@ -76,6 +76,7 @@ def writetodatabase(filename,RequestUsername):
     files=os.listdir('uploads/')
     for file in files:
         if file.endswith('.py'):
+            filename = file
             print("Starting time now..")
             currtime = float(time.time())
             subprocess.run(["python3",'uploads/'+file])
