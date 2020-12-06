@@ -10,6 +10,7 @@ from flask import Flask, flash, request, redirect, url_for, jsonify
 import json
 import bcrypt
 import sqlite3
+import zipfile
 flask_secretkey = os.getenv("flask_secretkey", "default value")
 hostip = "docker.therepairbear.koala"
 hostport = "8086"
@@ -29,8 +30,8 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = flask_secretkey 
 app.debug = True
 
-UPLOAD_FOLDER= '/home/koala/programming/python/ExecuteStats'
-ALLOWED_EXTENSIONS = {'txt','py','lua'}
+UPLOAD_FOLDER= 'uploads/'
+ALLOWED_EXTENSIONS = {'txt','py','lua','zip'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 def allowed_file(filename):
     return '.' in filename and \
@@ -69,17 +70,18 @@ def upload_file():
         return("")
     return("No post request recived")
 def writetodatabase(filename,RequestUsername):
-    currtime = float(time.time())
-    print(currtime)
 
-    print("Starting program now")
-
-    process = subprocess.run(["python3",filename])
-    subprocess.CompletedProcess.check_returncode(process)
-
-    print("Program has finished")
-    currendtime = float(time.time())
-
+    with zipfile.ZipFile('uploads/' + filename,"r") as zip_ref:
+        zip_ref.extractall('uploads/')
+    files=os.listdir('uploads/')
+    for file in files:
+        if file.endswith('.py'):
+            print("Starting time now..")
+            currtime = float(time.time())
+            subprocess.run(["python3",'uploads/'+file])
+            currendtime = float(time.time())
+            print("Ended time now")
+        
     json_body = [
         {
             "measurement":"ExcecuteStatus",
