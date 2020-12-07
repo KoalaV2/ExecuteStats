@@ -14,7 +14,6 @@ import zipfile
 flask_secretkey = os.getenv("flask_secretkey", "default value")
 hostip = "docker.therepairbear.koala"
 hostport = "8086"
-#sqlite3.createDatabase('database.db')
 conn = sqlite3.connect('database.db')
 c = conn.cursor()
 client = InfluxDBClient(host=hostip,port=hostport)
