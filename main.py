@@ -30,7 +30,7 @@ app.config['SECRET_KEY'] = flask_secretkey
 app.debug = True
 
 UPLOAD_FOLDER= 'uploads/'
-ALLOWED_EXTENSIONS = {'txt','py','lua','zip'}
+ALLOWED_EXTENSIONS = {'zip'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 def allowed_file(filename):
     return '.' in filename and \
