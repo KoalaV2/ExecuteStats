@@ -63,9 +63,11 @@ def upload_file():
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             writetodatabase(filename,RequestUsername)
+
         if not bcrypt.checkpw(RequestPassword, hashedpasswd):
             print("Wrong password")
             return("Wrong password")
+
         return("")
     return("No post request recived")
 def writetodatabase(filename,RequestUsername):
@@ -81,7 +83,14 @@ def writetodatabase(filename,RequestUsername):
             subprocess.run(["python3",'uploads/'+file])
             currendtime = float(time.time())
             print("Ended time now")
-        
+        elif file.endswith('.lua'):
+            filename = file
+            print("Starting time now..")
+            currtime = float(time.time())
+            subprocess.run(["lua",'uploads/'+file])
+            currendtime = float(time.time())
+            print("Ended time now")
+
     json_body = [
         {
             "measurement":"ExcecuteStatus",
