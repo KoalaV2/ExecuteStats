@@ -19,3 +19,4 @@ Sees how long a program takes to excecute and puts it in a grafana graph
 
 * Add grafana variables
 * Make it so the uploaded program runs in a docker container instead of the server.
+* Message broker
