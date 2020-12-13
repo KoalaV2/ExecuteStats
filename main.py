@@ -11,6 +11,8 @@ import json
 import bcrypt
 import sqlite3
 import zipfile
+import threading 
+thread_list = []
 flask_secretkey = os.getenv("flask_secretkey", "default value")
 hostip = "docker.therepairbear.koala"
 hostport = "8086"
@@ -62,7 +64,10 @@ def upload_file():
         if file and allowed_file(file.filename) and bcrypt.checkpw(RequestPassword, hashedpasswd):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            writetodatabase(filename,RequestUsername)
+            thread = threading.Thread(target=writetodatabase, args=(filename,RequestUsername))
+            thread_list.append(thread)
+            thread.start()
+#            writetodatabase(filename,RequestUsername)
 
         if not bcrypt.checkpw(RequestPassword, hashedpasswd):
             print("Wrong password")
