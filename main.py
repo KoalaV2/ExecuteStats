@@ -113,7 +113,7 @@ def writetodatabase(filename,RequestUsername):
     print("Writing to DB")
     client.write_points(json_body,database='ExecStats',protocol=u'json')
 
-app.run()
+app.run(host= '0.0.0.0')
 
 
 
