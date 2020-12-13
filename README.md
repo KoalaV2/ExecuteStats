@@ -8,7 +8,7 @@ pip install -r requirements.txt
 # Build
 ```shell script
 docker build -t <name> .
-docker run -d <name> -p8080:8080
+docker run -p 5000:5000 -d <name> 
 ```
 
 # ExecuteStats
