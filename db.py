@@ -2,7 +2,7 @@
 import sqlite3
 import bcrypt
 
-conn = sqlite3.connect('/home/koala/programming/python/ExecuteStats/database.db')
+conn = sqlite3.connect('database.db')
 c = conn.cursor()
 
 c.execute('''CREATE TABLE IF NOT EXISTS users (username,password)''')
