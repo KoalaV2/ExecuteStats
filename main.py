@@ -12,6 +12,7 @@ import bcrypt
 import sqlite3
 import zipfile
 import threading 
+import shutil
 thread_list = []
 flask_secretkey = os.getenv("flask_secretkey", "default value")
 hostip = "docker.therepairbear.koala"
@@ -30,7 +31,6 @@ client.switch_database('ExecStats')
 app = Flask(__name__)
 app.config['SECRET_KEY'] = flask_secretkey 
 app.debug = True
-
 UPLOAD_FOLDER= 'uploads/'
 ALLOWED_EXTENSIONS = {'zip'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -67,7 +67,6 @@ def upload_file():
             thread = threading.Thread(target=writetodatabase, args=(filename,RequestUsername))
             thread_list.append(thread)
             thread.start()
-#            writetodatabase(filename,RequestUsername)
 
         if not bcrypt.checkpw(RequestPassword, hashedpasswd):
             print("Wrong password")
@@ -76,25 +75,31 @@ def upload_file():
         return("")
     return("No post request recived")
 def writetodatabase(filename,RequestUsername):
+    ParentDir="uploads/"
+    directory = str(RequestUsername.decode("utf-8"))
+    path = os.path.join(ParentDir,directory)
+    os.mkdir(path)
 
-    with zipfile.ZipFile('uploads/' + filename,"r") as zip_ref:
-        zip_ref.extractall('uploads/')
-    files=os.listdir('uploads/')
+    with zipfile.ZipFile(ParentDir + filename,"r") as zip_ref:
+        zip_ref.extractall(f"{path}/")
+        os.remove(ParentDir + filename)
+    files=os.listdir(f"{path}/")
     for file in files:
+        filename = file
+        print("Starting time now..")
+        currtime = float(time.time())
+
         if file.endswith('.py'):
-            filename = file
-            print("Starting time now..")
-            currtime = float(time.time())
-            subprocess.run(["python3",'uploads/'+file])
-            currendtime = float(time.time())
-            print("Ended time now")
+            subprocess.run(["python3",path + '/' +file])
         elif file.endswith('.lua'):
-            filename = file
-            print("Starting time now..")
-            currtime = float(time.time())
             subprocess.run(["lua",'uploads/'+file])
-            currendtime = float(time.time())
-            print("Ended time now")
+        elif file.endswith('.js'):
+            subprocess.run(["node",'uploads/'+file])
+  
+        currendtime = float(time.time())
+        print("Ended time")
+        shutil.rmtree(path)
+
 
     json_body = [
         {
