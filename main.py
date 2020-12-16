@@ -99,6 +99,7 @@ def writetodatabase(filename,RequestUsername):
         currendtime = float(time.time())
         print("Ended time")
         shutil.rmtree(path)
+        print("Removed user files")
 
 
     json_body = [
