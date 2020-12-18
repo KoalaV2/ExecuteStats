@@ -75,50 +75,56 @@ def upload_file():
         return("")
     return("No post request recived")
 def writetodatabase(filename,RequestUsername):
-    ParentDir="uploads/"
-    directory = str(RequestUsername.decode("utf-8"))
-    path = os.path.join(ParentDir,directory)
-    os.mkdir(path)
+    try:
+        ParentDir="uploads/"
+        directory = str(RequestUsername.decode("utf-8"))
+        path = os.path.join(ParentDir,directory)
+        os.mkdir(path)
 
-    with zipfile.ZipFile(ParentDir + filename,"r") as zip_ref:
-        zip_ref.extractall(f"{path}/")
-        os.remove(ParentDir + filename)
-    files=os.listdir(f"{path}/")
-    for file in files:
-        filename = file
-        print("Starting time now..")
-        currtime = float(time.time())
+        with zipfile.ZipFile(ParentDir + filename,"r") as zip_ref:
+            zip_ref.extractall(f"{path}/")
+            os.remove(ParentDir + filename)
+        files=os.listdir(f"{path}/")
+        for file in files:
+            filename = file
+            print("Starting time now..")
+            currtime = float(time.time())
 
-        if file.endswith('.py'):
-            subprocess.run(["python3",path + '/' +file])
-        elif file.endswith('.lua'):
-            subprocess.run(["lua",'uploads/'+file])
-        elif file.endswith('.js'):
-            subprocess.run(["node",'uploads/'+file])
-  
-        currendtime = float(time.time())
-        print("Ended time")
+            if file.endswith('.py'):
+                subprocess.run(["python3",path + '/' +file])
+            elif file.endswith('.lua'):
+                subprocess.run(["lua",'uploads/'+file])
+            elif file.endswith('.js'):
+                subprocess.run(["node",'uploads/'+file])
+      
+            currendtime = float(time.time())
+            print("Ended time")
+            shutil.rmtree(path)
+            print("Removed user files")
+
+
+        json_body = [
+            {
+                "measurement":"ExcecuteStatus",
+                "tags": {
+                    "username": RequestUsername, 
+                    "programName": filename
+                    },
+                "fields": {
+                    "startTime": currtime,
+                    "endtime": currendtime 
+                    }
+            } 
+        ]
+
+        print("Writing to DB")
+        client.write_points(json_body,database='ExecStats',protocol=u'json')
+    except:
+        try:
+            raise
+        except: FileExistsError
+        print("User folder already exists removing user folder now, please try again")
         shutil.rmtree(path)
-        print("Removed user files")
-
-
-    json_body = [
-        {
-            "measurement":"ExcecuteStatus",
-            "tags": {
-                "username": RequestUsername, 
-                "programName": filename
-                },
-            "fields": {
-                "startTime": currtime,
-                "endtime": currendtime 
-                }
-        } 
-    ]
-
-    print("Writing to DB")
-    client.write_points(json_body,database='ExecStats',protocol=u'json')
-
 app.run(host= '0.0.0.0')
 
 
