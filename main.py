@@ -14,7 +14,6 @@ import zipfile
 import threading 
 import shutil
 thread_list = []
-flask_secretkey = os.getenv("flask_secretkey", "default value")
 hostip = "docker.therepairbear.koala"
 hostport = "8086"
 conn = sqlite3.connect('database.db')
